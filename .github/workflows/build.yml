@@ -16,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: '3.11' # نسخة مستقرة جداً لبناء ملفات الـ EXE
 
     - name: Install Dependencies
       run: |
@@ -25,7 +25,7 @@ jobs:
 
     - name: Build EXE
       run: |
-        pyinstaller --onefile --noconsole launcher.py
+        pyinstaller --onefile --noconsole --clean launcher.py
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
