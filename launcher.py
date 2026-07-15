@@ -5,7 +5,7 @@ import customtkinter as ctk
 import minecraft_launcher_lib as mclib
 import subprocess
 
-# 1) إعداد المظهر والثيم مسبقاً لتفادي خطأ 'dict' object is not callable في ويندوز
+# إعداد المظهر والثيم مسبقاً لتفادي أي تعارض في ويندوز
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
@@ -87,5 +87,31 @@ class GGLauncher(ctk.CTk):
         self.status_label.configure(text="⏳ جاري تشغيل ماين كرافت...", text_color="yellow")
         self.update_idletasks()
 
-        # إعدادات التشغيل الـ Offline
+        # إعدادات التشغيل الـ Offline مع إغلاق القوس بشكل صحيح ومضمون
         options = {
+            "username": username,
+            "uuid": "",
+            "token": ""
+        }
+
+        try:
+            # التحقق من وجود الإصدار محلياً، وإذا لم يكن موجوداً يتم تحميله
+            if not os.path.exists(os.path.join(self.minecraft_dir, "versions", selected_version)):
+                self.status_label.configure(text="📥 الإصدار غير مثبت، جاري التحميل (قد يستغرق بعض الوقت)...")
+                self.update_idletasks()
+                mclib.install.install_minecraft_version(selected_version, self.minecraft_dir)
+
+            # جلب كود أمر تشغيل ماين كرافت
+            minecraft_command = mclib.command.get_minecraft_command(selected_version, self.minecraft_dir, options)
+            
+            # تشغيل اللعبة في عملية منفصلة وإغلاق اللانشر
+            subprocess.Popen(minecraft_command)
+            self.destroy() 
+            sys.exit()
+
+        except Exception as e:
+            self.status_label.configure(text=f"❌ خطأ أثناء التشغيل: {str(e)}", text_color="red")
+
+if __name__ == "__main__":
+    app = GGLauncher()
+    app.mainloop()
